@@ -3,3 +3,4 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+discord-rl-bot/config.json

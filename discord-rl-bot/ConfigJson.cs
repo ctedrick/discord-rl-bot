@@ -1,6 +1,12 @@
-﻿namespace CodyTedrick.DiscordBot;
+﻿using Newtonsoft.Json;
 
-public class ConfigJson
+namespace CodyTedrick.DiscordBot;
+
+public struct ConfigJson
 {
+    [JsonProperty("token")]
+    public string Token{ get; private set; }
     
+    [JsonProperty("prefix")]
+    public string Prefix{ get; private set; }
 }

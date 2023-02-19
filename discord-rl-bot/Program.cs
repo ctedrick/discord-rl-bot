@@ -1,2 +1,10 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿using CodyTedrick.DiscordBot;
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        var bot = new Bot();
+        bot.RunAsync().GetAwaiter().GetResult();
+    }
+}

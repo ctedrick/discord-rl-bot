@@ -1,4 +1,5 @@
 ﻿using Discord.Commands;
+using Discord.Interactions;
 
 namespace CodyTedrick.DiscordBot;
 

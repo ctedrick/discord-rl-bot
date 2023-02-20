@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Text;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -55,7 +56,7 @@ public class Bot
         var context = new SocketCommandContext(Client, message);
         if (message.Author.IsBot) 
             return;
-        
+
         int msgPos = 0;
         if (message.HasStringPrefix("!", ref msgPos)) {
             var result = await Commands.ExecuteAsync(context, msgPos, Services);

@@ -60,7 +60,13 @@ public class Bot
         int msgPos = 0;
         if (message.HasStringPrefix("!", ref msgPos)) {
             var result = await Commands.ExecuteAsync(context, msgPos, Services);
-            if (!result.IsSuccess) Console.WriteLine(result.ErrorReason);
+            
+            var newMessage = message.Content.Remove(0, 1);
+            new Scraper().DisplayGamerData(newMessage);
+
+            if (!result.IsSuccess) {
+                Console.WriteLine(result.ErrorReason);
+            }
         }
     }
 

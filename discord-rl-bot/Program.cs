@@ -1,4 +1,5 @@
-﻿using CodyTedrick.DiscordBot.Services;
+﻿using CodyTedrick.DiscordBot.Database;
+using CodyTedrick.DiscordBot.Services;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -64,7 +65,7 @@ public class Program
     {
         if (IsDebug()) {
             // this is where you put the id of the test discord guild
-            Console.WriteLine($"In debug mode, adding commands to {testGuildId}...");
+            Console.WriteLine($"Connected as -> [{client.CurrentUser}] :)");
             await commands.RegisterCommandsToGuildAsync(testGuildId);
         }
         // else {
@@ -80,6 +81,7 @@ public class Program
             .AddSingleton<DiscordSocketClient>()
             .AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()))
             .AddSingleton<CommandHandler>()
+            .AddDbContext<CsharpiEntities>()
             .BuildServiceProvider();
     }
     

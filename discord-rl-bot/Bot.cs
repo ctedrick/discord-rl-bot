@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Text;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -12,7 +11,6 @@ public class Bot
 {
     public DiscordSocketClient Client{ get; private set; }
     public CommandService Commands{ get; private set; }
-    
     public IServiceProvider Services{ get; set; }
     
     private ConfigJson config;
@@ -41,7 +39,7 @@ public class Bot
         await Client.LoginAsync(TokenType.Bot, config.Token);
         await Client.StartAsync();
 
-        await Task.Delay(-1);
+        await Task.Delay(Timeout.Infinite);
     }
 
     public async Task RegisterCommandsAsync()
@@ -61,9 +59,6 @@ public class Bot
         if (message.HasStringPrefix("!", ref msgPos)) {
             var result = await Commands.ExecuteAsync(context, msgPos, Services);
             
-            var newMessage = message.Content.Remove(0, 1);
-            new Scraper().DisplayGamerData(newMessage);
-
             if (!result.IsSuccess) {
                 Console.WriteLine(result.ErrorReason);
             }

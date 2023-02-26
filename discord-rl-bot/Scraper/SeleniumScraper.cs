@@ -2,11 +2,11 @@
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 
-namespace CodyTedrick.DiscordBot;
+namespace CodyTedrick.DiscordBot.Scrapers;
 
-public class Scraper
+public class SeleniumScraper : IScraper
 {
-    public void DisplayGamerData(string userUrl)
+    public void GetDataFromUrl(string userUrl)
     {
         var options = new ChromeOptions();
         options.AddArguments("--headless", "--disable-web-security", "start-maximized"); // headless does not work...

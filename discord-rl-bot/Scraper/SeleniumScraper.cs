@@ -6,7 +6,9 @@ namespace CodyTedrick.DiscordBot.Scrapers;
 
 public class SeleniumScraper : IScraper
 {
-    public void GetDataFromUrl(string userUrl)
+    public string BaseUrl => "https://tracker.gg/rocket-league";
+
+    public void GetDataFromUrl(IScraper.AccountEnum account, string gamerTag)
     {
         var options = new ChromeOptions();
         options.AddArguments("--headless", "--disable-web-security", "start-maximized"); // headless does not work...
@@ -16,14 +18,27 @@ public class SeleniumScraper : IScraper
         service.HideCommandPromptWindow = true;
         
         // Open the website
-        driver.Navigate().GoToUrl(userUrl);
+        driver.Navigate().GoToUrl(BaseUrl);
         
-        // Wait for the player's profile to load
         Thread.Sleep(10000);
         
         // Find the elements containing the data you want to scrape
         var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-        var name = wait.Until(d => d.FindElement(By.CssSelector(".trn-ign__username")));
+        var name = wait.Until(d => d.FindElement(By.ClassName("platforms-dropdown dropdown dropdown--trigger")));
+        name.Click();
+        
+        // Find the elements containing the data you want to scrape
+        var labels = wait.Until(d => d.FindElements(By.ClassName("dropdown__item")));
+        foreach (var label in labels) {
+            var child = wait.Until(d => d.FindElement(By.ClassName("dropdown__item-label")));
+            if (child.Text == account.ToString())
+                label.Click();
+        }
+        
+        name = wait.Until(d => d.FindElement(By.CssSelector($"[aria-label*='{account.ToString()}']")));
+        name.SendKeys(gamerTag);
+        
+        name = wait.Until(d => d.FindElement(By.CssSelector(".trn-ign__username")));
         
         var dataCategories = new List<string>() {
             "Wins",

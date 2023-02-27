@@ -1,4 +1,5 @@
 ﻿using CodyTedrick.DiscordBot.Database;
+using CodyTedrick.DiscordBot.Scrapers;
 using CodyTedrick.DiscordBot.Services;
 using Discord;
 using Discord.Interactions;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 public class Program
 {
     private readonly IConfiguration config;
+    private readonly IScraper scraper;
     
     private DiscordSocketClient client;
     private InteractionService commands;
@@ -26,6 +28,8 @@ public class Program
                        .AddJsonFile(path: "config.json");
         config = cb.Build();
         testGuildId = ulong.Parse(config["TestGuildId"] ?? string.Empty);
+
+        scraper = new SeleniumScraper();
     }
     
     public async Task MainAsync()
@@ -77,12 +81,13 @@ public class Program
     private ServiceProvider ConfigureServices()
     {
         return new ServiceCollection()
-            .AddSingleton(config)
-            .AddSingleton<DiscordSocketClient>()
-            .AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()))
-            .AddSingleton<CommandHandler>()
-            .AddDbContext<CsharpiEntities>()
-            .BuildServiceProvider();
+               .AddSingleton(config)
+               .AddSingleton(scraper)
+               .AddSingleton<DiscordSocketClient>()
+               .AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()))
+               .AddSingleton<CommandHandler>()
+               .AddDbContext<CsharpiEntities>()
+               .BuildServiceProvider();
     }
     
     static bool IsDebug ( )

@@ -5,7 +5,7 @@ namespace CodyTedrick.DiscordBot.Database;
 
 public class CsharpiEntities : DbContext
 {
-    public virtual DbSet<UserInfo> UserInfo{ get; set; }
+    public virtual DbSet<UserInfo?> UserInfo{ get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

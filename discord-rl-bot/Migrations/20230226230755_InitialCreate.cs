@@ -14,7 +14,7 @@ namespace CodyTedrick.Migrations
                 name: "UserInfo",
                 columns: table => new
                 {
-                    UserId = table.Column<long>(type: "INTEGER", nullable: false)
+                    UserId = table.Column<ulong>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     GamerTag = table.Column<string>(type: "TEXT", nullable: true)
                 },

@@ -1,5 +1,7 @@
-﻿using CodyTedrick.DiscordBot.Database;
+﻿using System.Text;
+using CodyTedrick.DiscordBot.Database;
 using CodyTedrick.DiscordBot.Scrapers;
+using Discord;
 using Discord.Interactions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -22,19 +24,19 @@ public class RocketLeagueCommands : InteractionModuleBase<SocketInteractionConte
         scraper = services.GetRequiredService<IScraper>();
     }
 
-    [SlashCommand("addtag", "Lets add your Rocket League GamerId")]
+    [SlashCommand("addinformation", "Lets add your Rocket League GamerId")]
     public async Task AddGamerTag
         (string gamerId, 
          [Choice("Steam", "Steam")]
-         [Choice("Playstation", "Playstation")] string option)
+         [Choice("Playstation", "Playstation")] string account)
     {
         var userId = Context.User.Id;
         var foundEntity = GetEntityAsync(userId);
 
         IScraper.AccountEnum acct;
-        if (option == "Steam") 
+        if (account == "Steam") 
             acct = IScraper.AccountEnum.Steam;
-        else if (option == "Playstation")
+        else if (account == "Playstation")
             acct = IScraper.AccountEnum.PlayStation;
         else
             acct = IScraper.AccountEnum.Steam;
@@ -47,13 +49,26 @@ public class RocketLeagueCommands : InteractionModuleBase<SocketInteractionConte
         else
             await AddEntityAsync(userId, gamerId, acct);
 
-        await ReplyAsync($"Thanks, {gamerId}!");
+        await ReplyAsync($"Vroom Vroom, {gamerId}!");
     }
     
-    [SlashCommand("showstats", "Lets add your Rocket League GamerId")]
-    public async Task ShowStats(string gamerId)
+    [SlashCommand("showaccountinfo", "View your account info")]
+    public async Task ShowAccountInformation()
     {
-        await ReplyAsync($"Thanks, {gamerId}!");
+        var userId = Context.User.Id;
+        var entry = await GetEntityAsync(userId);
+
+        var embed = new EmbedBuilder {
+            Color = Color.Blue,
+            Description = "Account Information",
+            Fields = new List<EmbedFieldBuilder> {
+                new() {Name = "User Name", Value = Context.User.Username},
+                new() {Name = "Account Type", Value = entry?.AccountType.ToString()},
+                new() {Name = "Gamer Tag", Value = entry?.GamerTag}
+            }
+        };
+
+        await ReplyAsync(null, false, embed.Build());
     }
 
     private async Task<UserInfo?> GetEntityAsync(ulong id)

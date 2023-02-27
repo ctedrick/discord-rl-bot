@@ -15,8 +15,6 @@ public class RocketLeagueCommands : InteractionModuleBase<SocketInteractionConte
     private readonly IConfiguration config;
     private readonly IScraper scraper;
 
-    private readonly List<IScraper.AccountEnum> accountChoices;
-
     public RocketLeagueCommands(IServiceProvider services)
     {
         db = services.GetRequiredService<CsharpiEntities>();
@@ -25,31 +23,19 @@ public class RocketLeagueCommands : InteractionModuleBase<SocketInteractionConte
     }
 
     [SlashCommand("addinformation", "Lets add your Rocket League GamerId")]
-    public async Task AddGamerTag
-        (string gamerId, 
-         [Choice("Steam", "Steam")]
-         [Choice("Playstation", "Playstation")] string account)
+    public async Task AddInformation(string trackerUrl)
     {
         var userId = Context.User.Id;
         var foundEntity = GetEntityAsync(userId);
 
-        IScraper.AccountEnum acct;
-        if (account == "Steam") 
-            acct = IScraper.AccountEnum.Steam;
-        else if (account == "Playstation")
-            acct = IScraper.AccountEnum.PlayStation;
-        else
-            acct = IScraper.AccountEnum.Steam;
-
         if (foundEntity.Result != null) {
-            foundEntity.Result.GamerTag = gamerId;
-            foundEntity.Result.AccountType = acct;
+            foundEntity.Result.Url = trackerUrl;
             await UpdateEntityAsync(foundEntity.Result);
         }
         else
-            await AddEntityAsync(userId, gamerId, acct);
+            await AddEntityAsync(userId, trackerUrl);
 
-        await ReplyAsync($"Vroom Vroom, {gamerId}!");
+        await ReplyAsync($"Vroom Vroom, {Context.User.Username}! Try /ShowStats next...");
     }
     
     [SlashCommand("showaccountinfo", "View your account info")]
@@ -63,8 +49,7 @@ public class RocketLeagueCommands : InteractionModuleBase<SocketInteractionConte
             Description = "Account Information",
             Fields = new List<EmbedFieldBuilder> {
                 new() {Name = "User Name", Value = Context.User.Username},
-                new() {Name = "Account Type", Value = entry?.AccountType.ToString()},
-                new() {Name = "Gamer Tag", Value = entry?.GamerTag}
+                // new() {Name = "RL Profile", Value = entry?}
             }
         };
 
@@ -76,13 +61,19 @@ public class RocketLeagueCommands : InteractionModuleBase<SocketInteractionConte
     {
         var userId = Context.User.Id;
         var entry = await GetEntityAsync(userId);
-
-        var account = entry.AccountType;
-        var tag = entry.GamerTag;
         
-        scraper.GetDataFromUrl(account, tag);
+        // var account = entry.AccountType;
+        var url = entry.Url;
         
-        await ReplyAsync(null, false, null);
+        var sb = scraper.GetDataFromUrl(url);
+        
+        var embed = new EmbedBuilder {
+            Color = Color.Blue,
+            Title = $"{Context.User.Username}'s Rocket League Stats!",
+            Description = sb.ToString()
+        };
+        
+        await ReplyAsync(null,false, embed.Build());
     }
 
     private async Task<UserInfo?> GetEntityAsync(ulong id)
@@ -96,9 +87,9 @@ public class RocketLeagueCommands : InteractionModuleBase<SocketInteractionConte
         await db.SaveChangesAsync();
     }
 
-    private async Task AddEntityAsync(ulong userId, string gamerId, IScraper.AccountEnum accountEnum)
+    private async Task AddEntityAsync(ulong userId, string url)
     {
-        await db.AddAsync(new UserInfo {UserId = userId, GamerTag = gamerId, AccountType = accountEnum});
+        await db.AddAsync(new UserInfo {UserId = userId, Url = url});
         await db.SaveChangesAsync();
     }
 }

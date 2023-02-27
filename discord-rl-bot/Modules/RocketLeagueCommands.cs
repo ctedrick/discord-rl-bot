@@ -70,6 +70,20 @@ public class RocketLeagueCommands : InteractionModuleBase<SocketInteractionConte
 
         await ReplyAsync(null, false, embed.Build());
     }
+    
+    [SlashCommand("showstats", "Show off those hot stats")]
+    public async Task ShowStats()
+    {
+        var userId = Context.User.Id;
+        var entry = await GetEntityAsync(userId);
+
+        var account = entry.AccountType;
+        var tag = entry.GamerTag;
+        
+        scraper.GetDataFromUrl(account, tag);
+        
+        await ReplyAsync(null, false, null);
+    }
 
     private async Task<UserInfo?> GetEntityAsync(ulong id)
     {   
